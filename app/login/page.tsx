@@ -1,0 +1,88 @@
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useCustomerAuth } from "@/hooks/use-customer-auth"
+import { Separator } from "@/components/ui/separator"
+import { Shield, CheckCircle2 } from "lucide-react"
+import { signIn } from "next-auth/react"
+
+export default function LoginPage() {
+  const router = useRouter()
+  const { login } = useCustomerAuth()
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError("")
+
+    const result = await login(email, password)
+    if (result.success) {
+      router.push("/products")
+    } else {
+      setError(result.error || "Identifiants invalides")
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-gray-50">
+      {/* Left: Brand / Hero */}
+      <div className="relative hidden lg:flex flex-col justify-between p-10 bg-gradient-to-br from-emh-gray to-white">
+        <div>
+          <Link href="/" className="inline-flex items-center gap-3">
+            <Image src="/images/emh-logo.png" alt="EMH" width={180} height={54} className="h-10 w-auto" />
+          </Link>
+        </div>
+        <div className="max-w-lg">
+          <h1 className="text-4xl font-bold text-emh-black mb-4">Bienvenue chez EMH</h1>
+          <p className="text-lg text-gray-600 mb-6">
+            Accédez à votre espace pour commander, suivre vos commandes et recevoir des conseils personnalisés.
+          </p>
+          <ul className="space-y-3 text-gray-700">
+            <li className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emh-red" /> Catalogue complet</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emh-red" /> Conseils techniques</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-emh-red" /> Suivi de commande</li>
+          </ul>
+        </div>
+        <div className="text-sm text-gray-500 flex items-center gap-2"><Shield className="h-4 w-4" /> Données sécurisées</div>
+      </div>
+
+      {/* Right: Auth Card */}
+      <div className="flex items-center justify-center p-6 lg:p-10">
+        <Card className="w-full max-w-md shadow-xl">
+          <CardHeader>
+            <CardTitle className="text-2xl">Se connecter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <Button variant="outline" className="bg-white" onClick={() => signIn("google", { callbackUrl: "/api/auth/callback/bridge" })}>Continuer avec Google</Button>
+              <Button variant="outline" className="bg-white" onClick={() => signIn("linkedin", { callbackUrl: "/api/auth/callback/bridge" })}>LinkedIn</Button>
+            </div>
+            <Separator className="my-4" />
+            <form onSubmit={handleLogin} className="space-y-4">
+              <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="password" placeholder="Mot de passe" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              {error && <div className="text-sm text-red-600">{error}</div>}
+              <Button disabled={loading} type="submit" className="w-full bg-emh-red hover:bg-red-700 text-white">
+                {loading ? "Connexion..." : "Se connecter"}
+              </Button>
+              <div className="text-sm text-gray-600 text-center">
+                Pas encore de compte ? <Link href="/signup" className="text-emh-red hover:underline">Créer un compte</Link>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
