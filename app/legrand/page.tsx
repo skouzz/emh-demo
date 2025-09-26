@@ -110,7 +110,7 @@ export default function LegrandPage() {
                   Partenariat <span className="text-emh-red">d'Excellence</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed mb-2">
-                  EMH est fier d'être le distributeur officiel agréé de Legrand France en Tunisie. Cette partnership
+                  EMH est fier d'être le revendeur agréé de Legrand France en Tunisie. Cette partnership
                   stratégique nous permet de vous offrir les meilleures solutions électriques et domotiques du marché
                   mondial.
                 </p>
@@ -146,7 +146,7 @@ export default function LegrandPage() {
                 <CardContent className="p-8 text-center space-y-6">
                   <Award className="mx-auto" size={64} />
                   <div className="space-y-4">
-                    <h3 className="text-2xl font-bold">Distributeur Officiel Agréé</h3>
+                    <h3 className="text-2xl font-bold">Revendeur agréé</h3>
                     <p className="text-red-100">
                       Certification officielle Legrand France pour la distribution en Tunisie
                     </p>

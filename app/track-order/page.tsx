@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Search, Package, Truck, CheckCircle, Clock, AlertCircle, Calendar, User, Phone, MapPin } from "lucide-react"
+import { Search, Package, Truck, CircleCheck as CheckCircle, Clock, CircleAlert as AlertCircle, Calendar, User, Phone, MapPin } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useOrders } from "@/hooks/use-orders"
-import type { Order } from "@/types/order"
+import type { Order } from "@/lib/db/models/order"
 import OrderStatusBadge from "@/components/orders/OrderStatusBadge"
 import PaymentStatusBadge from "@/components/orders/PaymentStatusBadge"
 

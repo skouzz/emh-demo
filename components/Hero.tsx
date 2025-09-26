@@ -16,7 +16,7 @@ export default function Hero() {
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
                 EMH, votre partenaire de confiance en Tunisie pour les installations électriques, la domotique, les
-                réseaux informatiques et les solutions industrielles. Distributeur officiel agréé Legrand France.
+                réseaux informatiques et les solutions industrielles. Revendeur agréé Legrand France.
               </p>
             </div>
 
@@ -40,7 +40,7 @@ export default function Hero() {
             <div className="flex items-center gap-4 pt-4">
               <div className="flex items-center gap-2">
                 <Zap className="text-emh-red" size={24} />
-                <span className="text-sm font-medium text-gray-700">Distributeur officiel Legrand</span>
+                <span className="text-sm font-medium text-gray-700">Revendeur agréé Legrand</span>
               </div>
             </div>
           </div>

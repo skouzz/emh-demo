@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useOrders } from "@/hooks/use-orders"
 import { useAuth } from "@/hooks/use-auth"
 import OrderCard from "@/components/orders/OrderCard"
-import type { Order } from "@/types/order"
+import type { Order } from "@/lib/db/models/order"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 

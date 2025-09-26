@@ -1,8 +1,8 @@
 "use client"
 
-import { BarChart3, Package, TrendingUp, Users } from "lucide-react"
+import { ChartBar as BarChart3, Package, TrendingUp, Users } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Product, ProductCategory } from "@/lib/types"
+import type { Product, ProductCategory } from "@/lib/db/models/product"
 
 interface AdminStatsProps {
   products: Product[]

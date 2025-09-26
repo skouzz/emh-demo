@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server"
-import { getDb } from "@/lib/mongodb"
+import { getDatabase } from "@/lib/db/connection"
 
 export async function GET() {
   try {
-    const db = await getDb()
+    const db = await getDatabase()
     // Run a lightweight command to verify connection
-    const result = await db.command({ ping: 1 })
-    return NextResponse.json({ ok: true, ping: result.ok === 1, db: db.databaseName })
+    await db.command({ ping: 1 })
+    return NextResponse.json({ 
+      ok: true, 
+      status: "connected", 
+      database: db.databaseName 
+    })
   } catch (err: any) {
-    return NextResponse.json({ ok: false, error: err?.message || String(err) }, { status: 500 })
+    return NextResponse.json({ 
+      ok: false, 
+      status: "error",
+      error: err?.message || String(err) 
+    }, { status: 500 })
   }
 } 

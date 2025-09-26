@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
 import { useAudience } from "@/hooks/use-audience"
 import { useCustomerAuth } from "@/hooks/use-customer-auth"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -45,6 +46,8 @@ export default function Header() {
     setIsCartOpen(false)
     router.push("/checkout")
   }
+
+  const userInitial = (user?.name || user?.email || "?").charAt(0).toUpperCase()
 
   return (
     <>
@@ -127,8 +130,31 @@ export default function Header() {
                 </>
               ) : (
                 <>
-                  <Link href="/profile" className="text-sm text-gray-700 hover:text-emh-red">Bonjour, {user?.name || user?.email}</Link>
-                  <Button variant="outline" className="bg-transparent" onClick={logout}>Déconnexion</Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="w-9 h-9 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-medium hover:ring-2 hover:ring-emh-red focus:outline-none">
+                        {userInitial}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <div className="px-3 py-2 text-sm text-gray-600">{user?.name || user?.email}</div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link href="/profile">Profil</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/orders">Mes commandes</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/settings">Paramètres</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/contact">Contactez-nous</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={logout}>Déconnexion</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               )}
               <CartButton onClick={handleCartOpen} />
@@ -190,7 +216,7 @@ export default function Header() {
                     )}
                   </div>
                 ))}
-                <div className="px-3 pt-2 flex items-center gap-2">
+                <div className="px-3 pt-2 flex flex-col gap-2">
                   {!isAuthenticated ? (
                     <>
                       <Button asChild variant="outline" className="flex-1 bg-transparent">
@@ -201,7 +227,13 @@ export default function Header() {
                       </Button>
                     </>
                   ) : (
+                    <>
+                      <Link href="/profile" className="block px-3 py-2 text-sm text-gray-700" onClick={() => setIsMenuOpen(false)}>Profil</Link>
+                      <Link href="/orders" className="block px-3 py-2 text-sm text-gray-700" onClick={() => setIsMenuOpen(false)}>Mes commandes</Link>
+                      <Link href="/settings" className="block px-3 py-2 text-sm text-gray-700" onClick={() => setIsMenuOpen(false)}>Paramètres</Link>
+                      <Link href="/contact" className="block px-3 py-2 text-sm text-gray-700" onClick={() => setIsMenuOpen(false)}>Contactez-nous</Link>
                     <Button variant="outline" className="flex-1 bg-transparent" onClick={() => { logout(); setIsMenuOpen(false) }}>Déconnexion</Button>
+                    </>
                   )}
                 </div>
               </div>

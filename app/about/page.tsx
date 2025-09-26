@@ -111,7 +111,7 @@ export default function AboutPage() {
                     l'innovation, nous avons rapidement élargi nos services.
                   </p>
                   <p>
-                    En 2025 nous sommes devenus distributeur officiel agréé de Legrand France, marquant un tournant
+                    En 2025 nous sommes devenus revendeur agréé de Legrand France, marquant un tournant
                     décisif dans notre développement. Cette partnership nous a permis d'offrir à nos clients les
                     meilleures solutions électriques et domotiques du marché.
                   </p>
@@ -132,7 +132,7 @@ export default function AboutPage() {
                 />
                 <div>
                   <p className="font-semibold text-emh-black">Partenaire Officiel depuis 2025</p>
-                  <p className="text-sm text-gray-600">Distributeur agréé Legrand France</p>
+                  <p className="text-sm text-gray-600">Revendeur agréé Legrand France</p>
                 </div>
               </div>
             </div>

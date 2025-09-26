@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { CheckCircle, ArrowRight, Package, Calendar, User } from "lucide-react"
+import { CircleCheck as CheckCircle, ArrowRight, Package, Calendar, User } from "lucide-react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useOrders } from "@/hooks/use-orders"
-import type { Order } from "@/types/order"
+import type { Order } from "@/lib/db/models/order"
 import OrderStatusBadge from "@/components/orders/OrderStatusBadge"
 
 export default function OrderSuccessPage() {

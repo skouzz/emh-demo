@@ -1,14 +1,8 @@
 "use client"
 
-interface CustomerUser {
-  id: string
-  email: string
-  name: string
-  audience?: "pro" | "particulier"
-  createdAt: Date
-}
+import { CustomerUser } from "./db/models/user"
 
-interface CustomerAuthState {
+export interface CustomerAuthState {
   user: CustomerUser | null
   isAuthenticated: boolean
   isLoading: boolean
@@ -75,30 +69,32 @@ class CustomerAuthStore {
   }
 
   async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-    await new Promise((r) => setTimeout(r, 300))
-
     try {
-      const raw = localStorage.getItem("emh_users")
-      const users: Array<any> = raw ? JSON.parse(raw) : []
-      const customer = users.find(
-        (u) => u.email?.toLowerCase() === email.toLowerCase() && u.password === password && u.role === "customer",
-      )
-      if (customer) {
-        const user: CustomerUser = {
-          id: customer.id,
-          email: customer.email,
-          name: customer.name,
-          audience: customer.audience,
-          createdAt: new Date(customer.createdAt || Date.now()),
+      const response = await fetch("/api/auth/customer-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        const user = {
+          ...data.user,
+          createdAt: new Date(data.user.createdAt),
+          updatedAt: new Date(data.user.updatedAt),
         }
         this.state = { user, isAuthenticated: true, isLoading: false }
         this.saveToStorage()
         this.notifyListeners()
         return { success: true }
+      } else {
+        return { success: false, error: data.error || "Login failed" }
       }
-    } catch (e) {}
-
-    return { success: false, error: "Email ou mot de passe incorrect" }
+    } catch (error) {
+      console.error("Customer login error:", error)
+      return { success: false, error: "Network error" }
+    }
   }
 
   loginWithUser(user: CustomerUser) {

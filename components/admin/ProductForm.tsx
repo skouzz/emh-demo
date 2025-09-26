@@ -11,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useProducts } from "@/hooks/use-products"
 import FileUpload from "./FileUpload"
+import type { Product, ProductCategory } from "@/lib/types"
+import type { Product as DbProduct } from "@/lib/db/models/product"
 
 interface ProductFormProps {
   productId?: string | null
@@ -28,10 +30,11 @@ export default function ProductForm({ productId, onClose }: ProductFormProps) {
     characteristics: {} as Record<string, string>,
     technicalSpecs: {} as Record<string, string>,
     images: [] as string[],
-    technicalFiles: [],
+    technicalFiles: [] as any[],
     price: "",
-    availability: "in-stock" as const,
+    availability: "in-stock" as DbProduct["availability"],
     featured: false,
+    audience: "both" as const,
   })
 
   const [newCharacteristic, setNewCharacteristic] = useState({ key: "", value: "" })
@@ -56,23 +59,34 @@ export default function ProductForm({ productId, onClose }: ProductFormProps) {
           price: product.price?.toString() || "",
           availability: product.availability,
           featured: product.featured,
+          audience: (product as any).audience || "both",
         })
       }
     }
   }, [productId, getProductById])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(file)
+    })
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Convert uploaded files to URLs (in a real app, you'd upload to a server/CDN)
-    const newImageUrls = imageFiles.map((file) => URL.createObjectURL(file))
-    const newDocumentUrls = documentFiles.map((file) => ({
+    // Convert uploaded files to persistent data URLs so they render after reload
+    const newImageUrls = await Promise.all(imageFiles.map((file) => fileToDataUrl(file)))
+    const newDocumentUrls = await Promise.all(
+      documentFiles.map(async (file) => ({
       id: Date.now().toString() + Math.random(),
       name: file.name,
-      type: file.name.split(".").pop()?.toLowerCase() as "pdf" | "doc" | "image",
-      url: URL.createObjectURL(file),
+        type: (file.name.split(".").pop()?.toLowerCase() as "pdf" | "doc" | "image") || "image",
+        url: await fileToDataUrl(file),
       size: file.size,
     }))
+    )
 
     const productData = {
       ...formData,
@@ -82,9 +96,9 @@ export default function ProductForm({ productId, onClose }: ProductFormProps) {
     }
 
     if (productId) {
-      updateProduct(productId, productData)
+      await updateProduct(productId, productData)
     } else {
-      addProduct(productData)
+      await addProduct(productData)
     }
 
     onClose()

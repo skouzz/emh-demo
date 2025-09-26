@@ -1,102 +1,37 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import type { Order, OrderItem, CustomerInfo } from "@/types/order"
-import type { Product } from "@/types/product"
-
-// Mock data for demonstration
-const mockOrders: Order[] = [
-  {
-    id: "order-1",
-    orderNumber: "EMH-2024-001",
-    customerInfo: {
-      name: "Ahmed Ben Ali",
-      email: "ahmed@example.com",
-      phone: "+216 20 123 456",
-      address: "123 Avenue Habib Bourguiba",
-      city: "Tunis",
-      postalCode: "1000",
-      notes: "Livraison préférée l'après-midi",
-    },
-    items: [
-      {
-        id: "item-1",
-        productId: "prod-1",
-        productName: "Interrupteur va-et-vient Céliane",
-        productReference: "067001",
-        quantity: 5,
-        price: 25.5,
-        subtotal: 127.5,
-      },
-      {
-        id: "item-2",
-        productId: "prod-2",
-        productName: "Prise 2P+T Céliane",
-        productReference: "067111",
-        quantity: 10,
-        price: 18.75,
-        subtotal: 187.5,
-      },
-    ],
-    subtotal: 315.0,
-    tax: 56.7,
-    total: 371.7,
-    status: "confirmed",
-    paymentStatus: "pending",
-    paymentMethod: "cash_on_delivery",
-    shippingMethod: "standard",
-    estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-    createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-  },
-  {
-    id: "order-2",
-    orderNumber: "EMH-2024-002",
-    customerInfo: {
-      name: "Fatma Trabelsi",
-      email: "fatma@example.com",
-      phone: "+216 25 987 654",
-      address: "456 Rue de la République",
-      city: "Sfax",
-      postalCode: "3000",
-    },
-    items: [
-      {
-        id: "item-3",
-        productId: "prod-3",
-        productName: "Tableau électrique 2 rangées",
-        productReference: "401212",
-        quantity: 1,
-        price: 145.0,
-        subtotal: 145.0,
-      },
-    ],
-    subtotal: 145.0,
-    tax: 26.1,
-    total: 171.1,
-    status: "processing",
-    paymentStatus: "pending",
-    paymentMethod: "cash_on_delivery",
-    shippingMethod: "express",
-    estimatedDelivery: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-    updatedAt: new Date(),
-  },
-]
+import type { Order, OrderItem, CustomerInfo } from "@/lib/db/models/order"
+import type { Product } from "@/lib/db/models/product"
 
 export function useOrders() {
   const [orders, setOrders] = useState<Order[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [orderStats, setOrderStats] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    confirmedOrders: 0,
+    processingOrders: 0,
+    shippedOrders: 0,
+    deliveredOrders: 0,
+    cancelledOrders: 0,
+    totalRevenue: 0,
+    averageOrderValue: 0,
+  })
 
   useEffect(() => {
-    // Simulate API call
-    const loadOrders = async () => {
-      setIsLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    loadOrders()
+    loadStats()
+  }, [])
 
-      const savedOrders = localStorage.getItem("emh-orders")
-      if (savedOrders) {
-        const parsedOrders = JSON.parse(savedOrders).map((order: any) => ({
+  const loadOrders = async () => {
+    try {
+      setIsLoading(true)
+      const response = await fetch("/api/orders?includeArchived=true")
+      
+      if (response.ok) {
+        const ordersData = await response.json()
+        const parsedOrders = ordersData.map((order: any) => ({
           ...order,
           createdAt: new Date(order.createdAt),
           updatedAt: new Date(order.updatedAt),
@@ -104,91 +39,118 @@ export function useOrders() {
           actualDelivery: order.actualDelivery ? new Date(order.actualDelivery) : undefined,
         }))
         setOrders(parsedOrders)
-      } else {
-        setOrders(mockOrders)
-        localStorage.setItem("emh-orders", JSON.stringify(mockOrders))
       }
-
+    } catch (error) {
+      console.error("Error loading orders:", error)
+    } finally {
       setIsLoading(false)
     }
+  }
 
-    loadOrders()
-  }, [])
+  const loadStats = async () => {
+    try {
+      const response = await fetch("/api/orders/stats")
+      if (response.ok) {
+        const stats = await response.json()
+        setOrderStats(stats)
+      }
+    } catch (error) {
+      console.error("Error loading order stats:", error)
+    }
+  }
 
   const createOrder = async (
     customerInfo: CustomerInfo,
-    items: { product: Product; quantity: number }[],
+    items: { product: Product; quantity: number }[]
   ): Promise<Order> => {
-    const orderItems: OrderItem[] = items.map((item, index) => ({
-      id: `item-${Date.now()}-${index}`,
-      productId: item.product.id,
-      productName: item.product.name,
-      productReference: item.product.reference,
-      productImage: item.product.images[0],
-      quantity: item.quantity,
-      price: item.product.price || 0,
-      subtotal: (item.product.price || 0) * item.quantity,
-    }))
+    try {
+      const orderItems: OrderItem[] = items.map((item, index) => ({
+        id: `item-${Date.now()}-${index}`,
+        productId: item.product.id,
+        productName: item.product.name,
+        productReference: item.product.reference,
+        productImage: item.product.images[0],
+        quantity: item.quantity,
+        price: item.product.price || 0,
+        subtotal: (item.product.price || 0) * item.quantity,
+      }))
 
-    const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
-    const tax = subtotal * 0.18 // 18% TVA
-    const total = subtotal + tax
+      const subtotal = orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+      const tax = subtotal * 0.18 // 18% TVA
+      const total = subtotal + tax
 
-    const newOrder: Order = {
-      id: `order-${Date.now()}`,
-      orderNumber: `EMH-${new Date().getFullYear()}-${String(orders.length + 1).padStart(3, "0")}`,
-      customerInfo,
-      items: orderItems,
-      subtotal,
-      tax,
-      total,
-      status: "pending",
-      paymentStatus: "pending",
-      paymentMethod: "cash_on_delivery",
-      shippingMethod: "standard",
-      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      const orderData = {
+        customerInfo,
+        items: orderItems,
+        subtotal,
+        tax,
+        total,
+        status: "pending" as const,
+        paymentStatus: "pending" as const,
+        paymentMethod: "cash_on_delivery" as const,
+        shippingMethod: "standard" as const,
+        estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      }
+
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderData),
+      })
+
+      if (response.ok) {
+        const newOrder = await response.json()
+        const parsedOrder = {
+          ...newOrder,
+          createdAt: new Date(newOrder.createdAt),
+          updatedAt: new Date(newOrder.updatedAt),
+          estimatedDelivery: newOrder.estimatedDelivery ? new Date(newOrder.estimatedDelivery) : undefined,
+        }
+        
+        await loadOrders()
+        await loadStats()
+        return parsedOrder as Order
+      } else {
+        throw new Error("Failed to create order")
+      }
+    } catch (error) {
+      console.error("Error creating order:", error)
+      throw error
     }
-
-    const updatedOrders = [newOrder, ...orders]
-    setOrders(updatedOrders)
-    localStorage.setItem("emh-orders", JSON.stringify(updatedOrders))
-
-    return newOrder
   }
 
   const updateOrderStatus = async (orderId: string, status: Order["status"], notes?: string): Promise<void> => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === orderId) {
-        return {
-          ...order,
-          status,
-          notes: notes || order.notes,
-          updatedAt: new Date(),
-        }
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status, notes }),
+      })
+      
+      if (response.ok) {
+        await loadOrders()
+        await loadStats()
       }
-      return order
-    })
-
-    setOrders(updatedOrders)
-    localStorage.setItem("emh-orders", JSON.stringify(updatedOrders))
+    } catch (error) {
+      console.error("Error updating order status:", error)
+    }
   }
 
   const updatePaymentStatus = async (orderId: string, paymentStatus: Order["paymentStatus"]): Promise<void> => {
-    const updatedOrders = orders.map((order) => {
-      if (order.id === orderId) {
-        return {
-          ...order,
-          paymentStatus,
-          updatedAt: new Date(),
-        }
+    try {
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentStatus }),
+      })
+      
+      if (response.ok) {
+        await loadOrders()
+        await loadStats()
       }
-      return order
-    })
-
-    setOrders(updatedOrders)
-    localStorage.setItem("emh-orders", JSON.stringify(updatedOrders))
+    } catch (error) {
+      console.error("Error updating payment status:", error)
+    }
   }
 
   const getOrderById = (orderId: string): Order | undefined => {
@@ -208,31 +170,7 @@ export function useOrders() {
   }
 
   const getOrderStats = () => {
-    const totalOrders = orders.length
-    const pendingOrders = orders.filter((order) => order.status === "pending").length
-    const confirmedOrders = orders.filter((order) => order.status === "confirmed").length
-    const processingOrders = orders.filter((order) => order.status === "processing").length
-    const shippedOrders = orders.filter((order) => order.status === "shipped").length
-    const deliveredOrders = orders.filter((order) => order.status === "delivered").length
-    const cancelledOrders = orders.filter((order) => order.status === "cancelled").length
-
-    const totalRevenue = orders
-      .filter((order) => order.status !== "cancelled")
-      .reduce((sum, order) => sum + order.total, 0)
-
-    const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
-
-    return {
-      totalOrders,
-      pendingOrders,
-      confirmedOrders,
-      processingOrders,
-      shippedOrders,
-      deliveredOrders,
-      cancelledOrders,
-      totalRevenue,
-      averageOrderValue,
-    }
+    return orderStats
   }
 
   return {
@@ -246,5 +184,6 @@ export function useOrders() {
     getOrdersByStatus,
     getOrdersByCustomer,
     getOrderStats,
+    refreshData: loadOrders,
   }
 }

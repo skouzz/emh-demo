@@ -15,6 +15,7 @@ import Footer from "@/components/Footer"
 import { useCart } from "@/hooks/use-cart"
 import { useOrders } from "@/hooks/use-orders"
 import { useRouter } from "next/navigation"
+import type { Product } from "@/lib/types"
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart()
@@ -44,6 +45,7 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error creating order:", error)
       // Handle error - could show toast notification
+      alert("Erreur lors de la création de la commande. Veuillez réessayer.")
     } finally {
       setIsSubmitting(false)
     }
@@ -230,6 +232,7 @@ export default function CheckoutPage() {
                             <span className="font-medium text-emh-red">
                               {(item.product.price * item.quantity).toFixed(2)} DT
                             </span>
+                          )}
                           )}
                         </div>
                       </div>

@@ -1,12 +1,6 @@
 "use client"
 
-interface User {
-  id: string
-  email: string
-  name: string
-  role: "superadmin" | "admin" | "customer"
-  createdAt: Date
-}
+import { User } from "./db/models/user"
 
 interface AuthState {
   user: User | null
@@ -75,63 +69,32 @@ class AuthStore {
   }
 
   async login(email: string, password: string): Promise<{ success: boolean; error?: string }> {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    // Try local user-store first
     try {
-      const raw = localStorage.getItem("emh_users")
-      const users: Array<Omit<User, "createdAt"> & { createdAt: string; password?: string }> = raw
-        ? JSON.parse(raw)
-        : []
-      const matched = users.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
-      if (matched) {
-        const user: User = {
-          id: matched.id,
-          email: matched.email,
-          name: matched.name,
-          role: matched.role as User["role"],
-          createdAt: new Date(matched.createdAt),
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.success) {
+        const user = {
+          ...data.user,
+          createdAt: new Date(data.user.createdAt),
+          updatedAt: new Date(data.user.updatedAt),
         }
         this.state = { user, isAuthenticated: true, isLoading: false }
         this.saveToStorage()
         this.notifyListeners()
         return { success: true }
+      } else {
+        return { success: false, error: data.error || "Login failed" }
       }
-    } catch (e) {
-      // ignore and fall back to defaults
+    } catch (error) {
+      console.error("Login error:", error)
+      return { success: false, error: "Network error" }
     }
-
-    // Default built-in credentials (superadmin and admin) for initial access
-    if (email === "super@emh.tn" && password === "super123") {
-      const user: User = {
-        id: "0",
-        email: "super@emh.tn",
-        name: "Super Admin",
-        role: "superadmin",
-        createdAt: new Date(),
-      }
-      this.state = { user, isAuthenticated: true, isLoading: false }
-      this.saveToStorage()
-      this.notifyListeners()
-      return { success: true }
-    }
-
-    if (email === "admin@emh.tn" && password === "admin123") {
-      const user: User = {
-        id: "1",
-        email: "admin@emh.tn",
-        name: "Administrateur EMH",
-        role: "admin",
-        createdAt: new Date(),
-      }
-      this.state = { user, isAuthenticated: true, isLoading: false }
-      this.saveToStorage()
-      this.notifyListeners()
-      return { success: true }
-    }
-
-    return { success: false, error: "Email ou mot de passe incorrect" }
   }
 
   logout() {

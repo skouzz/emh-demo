@@ -4,7 +4,8 @@ import { useEffect, useState } from "react"
 import { audienceStore, type Audience } from "@/lib/audience-store"
 
 export function useAudience() {
-  const [audience, setAudience] = useState<Audience>(audienceStore.get())
+  // Initialize with SSR-safe default; server renders as "pro" and client syncs after mount
+  const [audience, setAudience] = useState<Audience>(() => "pro")
 
   useEffect(() => {
     setAudience(audienceStore.get())

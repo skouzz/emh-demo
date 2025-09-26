@@ -70,9 +70,8 @@ export default function SignupPage() {
             <CardTitle className="text-2xl">Créer un compte</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="grid grid-cols-1 gap-3 mb-4">
               <Button variant="outline" className="bg-white" onClick={() => signIn("google", { callbackUrl: "/api/auth/callback/bridge" })}>Google</Button>
-              <Button variant="outline" className="bg-white" onClick={() => signIn("linkedin", { callbackUrl: "/api/auth/callback/bridge" })}>LinkedIn</Button>
             </div>
             <Separator className="my-4" />
             <form onSubmit={handleSignup} className="space-y-4">

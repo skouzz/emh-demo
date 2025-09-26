@@ -3,13 +3,14 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Plus, Edit, Trash2, FolderOpen } from "lucide-react"
+import { Plus, CreditCard as Edit, Trash2, FolderOpen, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useProducts } from "@/hooks/use-products"
-import type { ProductSubcategory } from "@/lib/types"
+import type { ProductSubcategory } from "@/lib/db/models/product"
+import Link from "next/link"
 
 export default function AdminCategoriesPage() {
   const { categories, addCategory, updateCategory, deleteCategory } = useProducts()
@@ -65,11 +66,28 @@ export default function AdminCategoriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Gestion des Catégories</h1>
           <p className="text-gray-600">Organisez vos produits par catégories ({categories.length} catégories)</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="bg-emh-red hover:bg-red-700 text-white">
-          <Plus className="h-4 w-4 mr-2" />
-          Nouvelle Catégorie
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href="/admin/categories/import">
+              <Upload className="h-4 w-4 mr-2" />
+              Importer
+            </Link>
+          </Button>
+          <Button onClick={() => setShowForm(true)} className="bg-emh-red hover:bg-red-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle Catégorie
+          </Button>
+        </div>
       </div>
+
+      {/* Hint */}
+      <Card className="mb-4">
+        <CardContent className="text-sm text-gray-700 p-4">
+          Astuce: pour importer rapidement, cliquez sur "Importer" puis collez votre liste. Chaque première ligne est
+          considérée comme une catégorie et les lignes suivantes comme ses sous-catégories jusqu'à la prochaine
+          catégorie. Les en-têtes comme "PRODUITS" ou "Close Menu" sont ignorés.
+        </CardContent>
+      </Card>
 
       {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">

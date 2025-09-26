@@ -1,60 +1,8 @@
-export interface Product {
-  id: string
-  name: string
-  reference: string
-  description: string
-  category: string
-  subcategory?: string
-  characteristics: Record<string, string>
-  technicalSpecs: Record<string, string>
-  images: string[]
-  technicalFiles: TechnicalFile[]
-  price?: number
-  availability: "in-stock" | "out-of-stock" | "on-order"
-  featured: boolean
-  createdAt: Date
-  updatedAt: Date
-  audience?: "pro" | "particulier" | "both"
-}
-
-export interface TechnicalFile {
-  id: string
-  name: string
-  type: "pdf" | "doc" | "image"
-  url: string
-  size: number
-}
-
-export interface ProductCategory {
-  id: string
-  name: string
-  description: string
-  image?: string
-  subcategories: ProductSubcategory[]
-}
-
-export interface ProductSubcategory {
-  id: string
-  name: string
-  description: string
-  image?: string
-}
-
-export interface CartItem {
-  id: string
-  productId: string
-  product: Product
-  quantity: number
-  addedAt: Date
-}
-
-export interface Cart {
-  id: string
-  items: CartItem[]
-  total: number
-  createdAt: Date
-  updatedAt: Date
-}
+// Re-export types from models for backward compatibility
+export type { Product, ProductCategory, ProductSubcategory, TechnicalFile } from "./db/models/product"
+export type { Order, OrderItem, CustomerInfo } from "./db/models/order"
+export type { Cart, CartItem } from "./db/models/cart"
+export type { User, CustomerUser } from "./db/models/user"
 
 export interface Customer {
   id: string

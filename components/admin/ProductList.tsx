@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Edit, Trash2, Search, Package } from "lucide-react"
+import { CreditCard as Edit, Trash2, Search, Package } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import type { Product, ProductCategory } from "@/lib/types"
+import type { Product, ProductCategory } from "@/lib/db/models/product"
 import { useProducts } from "@/hooks/use-products"
 import Image from "next/image"
 

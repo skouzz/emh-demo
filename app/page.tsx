@@ -69,7 +69,7 @@ export default function HomePage() {
                     height={80}
                     className="h-16 sm:h-20 w-auto"
                   />
-                  <span className="text-xs sm:text-sm font-medium text-gray-600">Distributeur Officiel Agréé</span>
+                  <span className="text-xs sm:text-sm font-medium text-gray-600">Revendeur agréé</span>
                 </div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-emh-black leading-tight">
                   Solutions Électriques
@@ -280,14 +280,14 @@ export default function HomePage() {
                 <Award className="h-8 w-8 sm:h-12 sm:w-12 text-emh-red flex-shrink-0" />
                 <div>
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-emh-black">Partenaire Officiel</h2>
-                  <p className="text-lg sm:text-xl text-gray-600 mt-2">Distributeur agréé Legrand en Tunisie</p>
+                  <p className="text-lg sm:text-xl text-gray-600 mt-2">Revendeur agréé Legrand en Tunisie</p>
                 </div>
               </div>
 
               <div className="space-y-4 sm:space-y-6">
                 <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
                   EMH est fier d'être le{" "}
-                  <strong className="text-emh-red">distributeur officiel agréé de Legrand France</strong> en Tunisie.
+                  <strong className="text-emh-red">revendeur agréé de Legrand France</strong> en Tunisie.
                   Cette partnership nous permet de vous offrir les meilleures solutions électriques et domotiques du
                   marché.
                 </p>

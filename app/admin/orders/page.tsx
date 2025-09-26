@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useOrders } from "@/hooks/use-orders"
 import { useAuth } from "@/hooks/use-auth"
 import OrderCard from "@/components/orders/OrderCard"
-import type { Order } from "@/types/order"
+import type { Order } from "@/lib/db/models/order"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
@@ -20,6 +20,10 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [sortBy, setSortBy] = useState<string>("newest")
+  const [dateFilter, setDateFilter] = useState<string>("all")
+  const [customFrom, setCustomFrom] = useState<string>("")
+  const [customTo, setCustomTo] = useState<string>("")
+  const [showArchived, setShowArchived] = useState<boolean>(false)
   const router = useRouter()
 
   // Redirect if not admin (client-side to avoid hydration mismatch)
@@ -29,6 +33,31 @@ export default function AdminOrdersPage() {
     }
   }, [authLoading, user, router])
 
+  const withinDateFilter = (order: Order) => {
+    const d = order.createdAt
+    const now = new Date()
+    if (dateFilter === "all") return true
+    if (dateFilter === "day") {
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      return d >= start
+    }
+    if (dateFilter === "month") {
+      const start = new Date(now.getFullYear(), now.getMonth(), 1)
+      return d >= start
+    }
+    if (dateFilter === "year") {
+      const start = new Date(now.getFullYear(), 0, 1)
+      return d >= start
+    }
+    if (dateFilter === "custom" && customFrom && customTo) {
+      const from = new Date(customFrom)
+      const to = new Date(customTo)
+      to.setHours(23, 59, 59, 999)
+      return d >= from && d <= to
+    }
+    return true
+  }
+
   const filteredAndSortedOrders = useMemo(() => {
     const filtered = orders.filter((order) => {
       const matchesSearch =
@@ -37,8 +66,10 @@ export default function AdminOrdersPage() {
         order.customerInfo.email.toLowerCase().includes(searchQuery.toLowerCase())
 
       const matchesStatus = statusFilter === "all" || order.status === statusFilter
+      const matchesDate = withinDateFilter(order)
+      const matchesArchive = showArchived ? true : !order.archived
 
-      return matchesSearch && matchesStatus
+      return matchesSearch && matchesStatus && matchesDate && matchesArchive
     })
 
     // Sort orders
@@ -60,7 +91,7 @@ export default function AdminOrdersPage() {
     }
 
     return filtered
-  }, [orders, searchQuery, statusFilter, sortBy])
+  }, [orders, searchQuery, statusFilter, sortBy, dateFilter, customFrom, customTo, showArchived])
 
   const handleOrderUpdate = async (orderId: string, status: Order["status"]) => {
     await updateOrderStatus(orderId, status)
@@ -68,7 +99,7 @@ export default function AdminOrdersPage() {
 
   const exportOrders = () => {
     const csvContent = [
-      ["Numéro", "Client", "Email", "Téléphone", "Statut", "Total", "Date"].join(","),
+      ["Numéro", "Client", "Email", "Téléphone", "Statut", "Total", "Date", "Archivée"].join(","),
       ...filteredAndSortedOrders.map((order) =>
         [
           order.orderNumber,
@@ -78,6 +109,7 @@ export default function AdminOrdersPage() {
           order.status,
           order.total.toFixed(2),
           order.createdAt.toLocaleDateString("fr-FR"),
+          order.archived ? "oui" : "non",
         ].join(","),
       ),
     ].join("\n")
@@ -150,7 +182,7 @@ export default function AdminOrdersPage() {
                   />
                 </div>
               </div>
-              <div className="flex gap-4">
+              <div className="flex flex-wrap gap-4 items-center">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filtrer par statut" />
@@ -165,23 +197,39 @@ export default function AdminOrdersPage() {
                     <SelectItem value="cancelled">Annulées</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Trier par" />
+                <Select value={dateFilter} onValueChange={setDateFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Période" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="newest">Plus récentes</SelectItem>
-                    <SelectItem value="oldest">Plus anciennes</SelectItem>
-                    <SelectItem value="highest">Montant décroissant</SelectItem>
-                    <SelectItem value="lowest">Montant croissant</SelectItem>
+                    <SelectItem value="all">Tout</SelectItem>
+                    <SelectItem value="day">Aujourd'hui</SelectItem>
+                    <SelectItem value="month">Ce mois</SelectItem>
+                    <SelectItem value="year">Cette année</SelectItem>
+                    <SelectItem value="custom">Personnalisée</SelectItem>
                   </SelectContent>
                 </Select>
+                {dateFilter === "custom" && (
+                  <div className="flex items-center gap-2">
+                    <Input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
+                    <span className="text-gray-500">→</span>
+                    <Input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
+                  </div>
+                )}
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} />
+                  Afficher archivées
+                </label>
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchQuery("")
                     setStatusFilter("all")
                     setSortBy("newest")
+                    setDateFilter("all")
+                    setCustomFrom("")
+                    setCustomTo("")
+                    setShowArchived(false)
                   }}
                 >
                   <Filter className="h-4 w-4 mr-2" />

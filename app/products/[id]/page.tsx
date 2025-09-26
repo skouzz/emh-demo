@@ -13,6 +13,7 @@ import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { useProducts } from "@/hooks/use-products"
 import AddToCartButton from "@/components/cart/AddToCartButton"
+import type { Product } from "@/lib/types"
 
 export default function ProductDetailPage() {
   const params = useParams()

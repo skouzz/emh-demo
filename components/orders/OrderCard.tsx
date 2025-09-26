@@ -5,7 +5,7 @@ import { Calendar, Package, User, Phone, MapPin, Eye } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Order } from "@/types/order"
+import type { Order } from "@/lib/db/models/order"
 import OrderStatusBadge from "./OrderStatusBadge"
 import PaymentStatusBadge from "./PaymentStatusBadge"
 
@@ -18,6 +18,7 @@ interface OrderCardProps {
 
 export default function OrderCard({ order, onViewDetails, onUpdateStatus, showActions = false }: OrderCardProps) {
   const [isUpdating, setIsUpdating] = useState(false)
+  const [isArchiving, setIsArchiving] = useState(false)
 
   const handleStatusUpdate = async (newStatus: Order["status"]) => {
     if (!onUpdateStatus) return
@@ -25,6 +26,18 @@ export default function OrderCard({ order, onViewDetails, onUpdateStatus, showAc
     setIsUpdating(true)
     await onUpdateStatus(order.id, newStatus)
     setIsUpdating(false)
+  }
+
+  const toggleArchive = async (archived: boolean) => {
+    setIsArchiving(true)
+    await fetch(`/api/orders/${order.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ archived })
+    })
+    // Let parent refresh via page-level reload or hook refresh
+    setIsArchiving(false)
+    if (typeof window !== "undefined") window.location.reload()
   }
 
   const formatDate = (date: Date) => {
@@ -136,8 +149,10 @@ export default function OrderCard({ order, onViewDetails, onUpdateStatus, showAc
             </Button>
           )}
 
-          {showActions && onUpdateStatus && (
+          {showActions && (
             <div className="flex gap-2 flex-1">
+              {onUpdateStatus && (
+                <>
               {order.status === "pending" && (
                 <Button
                   size="sm"
@@ -176,6 +191,19 @@ export default function OrderCard({ order, onViewDetails, onUpdateStatus, showAc
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   Livrer
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {order.status === "delivered" && !order.archived && (
+                <Button size="sm" variant="outline" onClick={() => toggleArchive(true)} disabled={isArchiving}>
+                  Archiver
+                </Button>
+              )}
+              {order.archived && (
+                <Button size="sm" variant="outline" onClick={() => toggleArchive(false)} disabled={isArchiving}>
+                  Désarchiver
                 </Button>
               )}
             </div>

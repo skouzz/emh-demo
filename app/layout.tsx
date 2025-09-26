@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "EMH - Établissement Mohamed Hertilli | Solutions Électriques & Domotique Tunisie",
   description:
-    "EMH, distributeur officiel Legrand en Tunisie. Spécialiste en installations électriques, domotique, réseaux informatiques et solutions industrielles.",
+    "EMH, revendeur agréé Legrand en Tunisie. Spécialiste en installations électriques, domotique, réseaux informatiques et solutions industrielles.",
   keywords:
     "EMH, Legrand, électricité, domotique, Tunisie, installations électriques, smart home, réseaux informatiques, solutions industrielles",
     generator: 'v0.dev'

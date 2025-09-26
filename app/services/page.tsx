@@ -161,7 +161,7 @@ export default function ServicesPage() {
               },
               {
                 title: "Partenaire Legrand",
-                description: "Distributeur officiel agréé Legrand France",
+                description: "Revendeur agréé Legrand France",
                 number: "100%",
               },
               {

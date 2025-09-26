@@ -22,8 +22,8 @@ export default function About() {
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Établissement Mohamed Hertilli (EMH) est une entreprise tunisienne spécialisée dans les solutions
-                électriques et technologiques depuis plus de 15 ans. Nous sommes fiers d'être le distributeur officiel
-                agréé de Legrand France en Tunisie.
+                électriques et technologiques depuis plus de 15 ans. Nous sommes fiers d'être le revendeur agréé
+                de Legrand France en Tunisie.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Notre expertise couvre les installations électriques, la domotique, les réseaux informatiques et les
@@ -35,7 +35,7 @@ export default function About() {
             <div className="flex items-center gap-4 p-4 bg-emh-gray rounded-lg">
               <Image src="/images/legrand-logo.png" alt="Legrand Logo" width={120} height={40} className="h-8 w-auto" />
               <div>
-                <p className="font-semibold text-emh-black">Distributeur Officiel Agréé</p>
+                <p className="font-semibold text-emh-black">Revendeur agréé</p>
                 <p className="text-sm text-gray-600">Partenaire certifié Legrand France</p>
               </div>
             </div>
