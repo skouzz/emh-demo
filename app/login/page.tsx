@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useCustomerAuth } from "@/hooks/use-customer-auth"
 import { Separator } from "@/components/ui/separator"
-import { Shield, CheckCircle2, Zap, ArrowRight, Eye, EyeOff } from "lucide-react"
+import { Shield, CircleCheck as CheckCircle2, Zap, ArrowRight, Eye, EyeOff } from "lucide-react"
 import { signIn } from "next-auth/react"
 
 export default function LoginPage() {

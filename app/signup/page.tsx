@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { userStore } from "@/lib/user-store"
 import { useCustomerAuth } from "@/hooks/use-customer-auth"
 import { Separator } from "@/components/ui/separator"
-import { Shield, CheckCircle2, Zap, ArrowRight, Eye, EyeOff, User, Building } from "lucide-react"
+import { Shield, CircleCheck as CheckCircle2, Zap, ArrowRight, Eye, EyeOff, User, Building } from "lucide-react"
 import { signIn } from "next-auth/react"
 
 export default function SignupPage() {
